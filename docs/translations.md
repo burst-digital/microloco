@@ -8,7 +8,7 @@ Static translations are simply key-value pairs of strings as children of the uni
 
 **NL**
 
-```json
+```js
 {
     "en": {
         "general": {
@@ -25,7 +25,7 @@ Static translations are simply key-value pairs of strings as children of the uni
 
 **FR**
 
-```json
+```js
 {
     "fr": {
         "general": {
@@ -46,7 +46,7 @@ Interpolated translations are translations which can show a dynamic string or nu
 
 **EN**
 
-```json
+```js
 {
     "en": {
         //..
@@ -63,7 +63,7 @@ Interpolated translations are translations which can show a dynamic string or nu
 
 **FR**
 
-```json
+```js
 {
     "fr": {
         //..
@@ -86,7 +86,7 @@ Pluralized translations require an object of the following keys: `none`, `singul
 
 **EN**
 
-```json
+```js
 {
     "en": {
         //..
@@ -106,7 +106,7 @@ Pluralized translations require an object of the following keys: `none`, `singul
 
 **FR**
 
-```
+```js
 {
     "fr": {
         //..

@@ -4,7 +4,7 @@
 
 Using the earlier created `t()` function, we can retrieve translations based on a dotted string lookup key which forms a path to the translation from the base key. The function also accepts an object of either string or number values.
 
-```
+```js
 t(lookupKey: string, interpolationValues: { [key: string]: string | number }): string
 ```
 
@@ -25,7 +25,7 @@ Getting a static translation is easy, simply use the `t()` function with just a 
 
 **Example**
 
-```
+```js
 t('general.allowCookies');
 t('products.strawberry.name);
 ```
@@ -36,7 +36,7 @@ Getting a interpolated translation also requires an object with corresponding ke
 
 **Example**
 
-```
+```js
 t('products.strawberry.weighted', { weighted: 300 });
 t('products.strawberry.numbered.plural', { num: 5 });
 ```
@@ -46,6 +46,7 @@ t('products.strawberry.numbered.plural', { num: 5 });
 Getting a pluralized translation works the same as interpolating a translation, but you are able to use the parent key as a path. Doing this, passing a `num` key with a integer as a value (required) will automatically pick the right pluralized translation for you.
 
 **Example**
-```
+
+```js
 t('products.strawberry.numbered', { num: 5 });
 ```
