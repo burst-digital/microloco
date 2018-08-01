@@ -6,10 +6,10 @@ Microloco is a micro-sized Javascript/Typescript internationalization library so
 
 This library aims to make internationalization easy with as little configuration needed as possible. 
 
-It includes **interpolation** and **pluralization** support based on translations in **JSON** files.
+It includes **interpolation** and **pluralization** support based on translations in defined **JSON** files or object literals.
 
-[Documentation](docs/index.md)
-[Example](example)
+- [Documentation](docs/index.md)
+- [Example](example)
 
 # Contributing
 
