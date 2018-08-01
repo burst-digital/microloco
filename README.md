@@ -23,6 +23,7 @@ Make sure you use the `prettier` and `tslint` styleguide in order to be able to 
 
 - **Make precommit work**
 - **Check out Typescript typing when importing the library, something seems to be going wrong**
+- **Make `npm` 'ready'**
 - **Add React Provider/Consumer and HOC example**
 - Test error handling/option handling.
 - Use the default language translations when a key is not available in the current language's translations. 
