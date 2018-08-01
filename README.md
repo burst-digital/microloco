@@ -2,7 +2,7 @@
 
 # Microloco
 
-Microloco is a micro-sized JavaScript/Typescript internationalization library so small it's **loco**.
+Microloco is a micro-sized Javascript/Typescript internationalization library so small it's **loco**.
 
 This library aims to make internationalization easy with as little configuration needed as possible. 
 
@@ -22,7 +22,7 @@ Make sure you use the `prettier` and `tslint` styleguide in order to be able to 
 ## Todos
 
 - **Make precommit work**
-- **Check out TypeScript typing when importing the library, something seems to be going wrong**
+- **Check out Typescript typing when importing the library, something seems to be going wrong**
 - **Add React Provider/Consumer and HOC example**
 - Test error handling/option handling.
 - Use the default language translations when a key is not available in the current language's translations. 

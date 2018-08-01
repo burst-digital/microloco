@@ -1,7 +1,7 @@
 {
   "name": "microloco",
   "version": "1.0.0",
-  "description": "A micro-sized JavaScript/TypeScript internationalization library so small it's loco.",
+  "description": "A micro-sized Javascript/Typescript internationalization library so small it's loco.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
