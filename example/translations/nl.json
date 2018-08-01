@@ -1,0 +1,25 @@
+{
+    "nl": {
+        "products": {
+            "strawberry": {
+                "name": "Aardbeien",
+                "weight": "Aardbei van {weight} gram",
+                "size": {
+                    "small": "Kleine aardbei",
+                    "medium": "Medium aardbei",
+                    "large": "Grote aardbei"
+                },
+                "numbered": {
+                    "none": "Nul aardbeien",
+                    "singular": "Een aardbei", 
+                    "plural": "{num} aardbeien"
+                },
+                "extraNumbered": {
+                    "none": "Nul {extra} aardbeien",
+                    "singular": "Een {extra} aardbei", 
+                    "plural": "{num} {extra} aardbeien"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "microloco",
+  "version": "1.0.0",
+  "description": "A micro-sized JavaScript/TypeScript internationalization library so small it's loco.",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build": "rimraf ./lib && tsc",
+    "lint": "tslint --project tsconfig.json",
+    "prettier": "prettier --write 'src/**/*.ts'",
+    "example": "node example"
+  },
+  "pre-commit": [
+    "prettier",
+    "lint"
+  ],
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "debug": "^3.1.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.14.0",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.14.0",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {}
+}

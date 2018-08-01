@@ -1,0 +1,9 @@
+export const APP_LOG_ID = "microloco";
+export const NONE = "none";
+export const SINGULAR = "singular";
+export const PLURAL = "plural";
+export const INTERPOLATE_REGEX = /{([^}]+)}/g;
+export const LOOKUP_KEY_REGEX = /^([a-zA-Z]+\.?)$/g;
+export const INVALID_LOOKUP_KEY_FALLBACK = "?";
+export const INVALID_TRANSLATION_VALUE_FALLBACK = "?";
+export const INVALID_INTERPOLATION_VALUE_FALLBACK = "?";
