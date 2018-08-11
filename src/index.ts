@@ -1,11 +1,9 @@
 import * as debug from "debug";
 import {
   APP_LOG_ID,
+  DEFAULT_LANG,
+  FALLBACK_DEFAULT,
   INTERPOLATE_REGEX,
-  INVALID_INTERPOLATION_VALUE_FALLBACK,
-  INVALID_LOOKUP_KEY_FALLBACK,
-  INVALID_TRANSLATION_VALUE_FALLBACK,
-  LOOKUP_KEY_REGEX,
   NONE,
   PLURAL,
   SINGULAR
@@ -14,11 +12,10 @@ import { flattenTranslations, isObject, isPluralized } from "./helpers";
 
 function deepFindTranslation(
   lookupKey: string,
-  translations: Translations,
-  invalidLookupKey: string
+  translations: Translations
 ): TranslationValue {
-  if (LOOKUP_KEY_REGEX.test(lookupKey)) {
-    return invalidLookupKey;
+  if (translations === null) {
+    return null;
   }
 
   return lookupKey
@@ -32,14 +29,14 @@ function deepFindTranslation(
         `${APP_LOG_ID}: Translation lookup key ${lookupKey} has no translation value.`
       );
 
-      return invalidLookupKey;
+      return null;
     }, translations);
 }
 
 function interpolate(
   translation: string,
   interpolationValues: InterpolationValues,
-  invalidInterpolationValueFallback: string
+  fallback: string
 ) {
   if (isObject(interpolationValues)) {
     return translation
@@ -61,10 +58,10 @@ function interpolate(
           }
 
           debug(
-            `${APP_LOG_ID}: Translation value ${preprocessedMatch} is an invalid interpolation value.`
+            `${APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
           );
 
-          return invalidInterpolationValueFallback;
+          return fallback;
         }
       )
       .replace(/[{}]/g, () => "");
@@ -82,104 +79,133 @@ function determinePluralizedTranslation(num: number): PluralizeKey {
   return NONE;
 }
 
+function getTranslationValue(
+  lookupKey: string,
+  mainTranslations: Translations,
+  defaultTranslations: Translations
+): TranslationValue {
+  if (typeof lookupKey !== "string") {
+    debug(`${APP_LOG_ID}: Lookup key ${String(lookupKey)} is not a string.`);
+
+    return null;
+  }
+
+  const mainTranslation = deepFindTranslation(lookupKey, mainTranslations);
+
+  if (mainTranslation !== null) {
+    return mainTranslation;
+  }
+
+  const defaultTranslation = deepFindTranslation(
+    lookupKey,
+    defaultTranslations
+  );
+
+  if (defaultTranslation !== null) {
+    return defaultTranslation;
+  }
+
+  debug(
+    `${APP_LOG_ID}: Translation for ${String(
+      lookupKey
+    )} could not be found in either main or default translations.`
+  );
+
+  return null;
+}
+
 function t(
   lookupKey: string,
   interpolationValues: InterpolationValues,
-  translations: Translations,
-  options: InitOptions
+  mainTranslations: Translations,
+  defaultTranslations: Translations,
+  initOptions: InitOptions
 ) {
-  const invalidLookupKeyFallback =
-    typeof options.invalidLookupKeyFallback === "string"
-      ? options.invalidLookupKeyFallback
-      : INVALID_LOOKUP_KEY_FALLBACK;
-  const invalidTranslationValueFallback =
-    typeof options.invalidTranslationValueFallback === "string"
-      ? options.invalidTranslationValueFallback
-      : INVALID_TRANSLATION_VALUE_FALLBACK;
-  const invalidInterpolationValueFallback =
-    typeof options.invalidInterpolationValueFallback === "string"
-      ? options.invalidInterpolationValueFallback
-      : INVALID_INTERPOLATION_VALUE_FALLBACK;
+  if (mainTranslations === null && defaultTranslations === null) {
+    return initOptions.fallback;
+  }
 
-  const translation = deepFindTranslation(
+  const translation = getTranslationValue(
     lookupKey,
-    translations,
-    invalidLookupKeyFallback
+    mainTranslations,
+    defaultTranslations
   );
 
-  if (!isObject(translation) && typeof translation !== "string") {
-    debug(
-      `${APP_LOG_ID}: Translation lookup key ${lookupKey} has no translation value.`
+  if (
+    isObject(translation) &&
+    isPluralized(translation as Translations) &&
+    "num" in interpolationValues &&
+    !isNaN(interpolationValues.num as number)
+  ) {
+    const pluralizeKey = determinePluralizedTranslation(
+      interpolationValues.num as number
     );
 
-    return invalidTranslationValueFallback;
+    const pluralizedTranslation: TranslationValue = (translation as Translations)[
+      pluralizeKey
+    ];
+
+    return interpolate(
+      pluralizedTranslation as string,
+      interpolationValues,
+      initOptions.fallback
+    );
+  } else if (typeof translation === "string") {
+    return interpolate(
+      translation as string,
+      interpolationValues,
+      initOptions.fallback
+    );
   }
 
-  if (isObject(translation)) {
-    if (
-      isPluralized(translation as Translations) &&
-      "num" in interpolationValues &&
-      !isNaN(interpolationValues.num as number)
-    ) {
-      const pluralizeKey = determinePluralizedTranslation(
-        interpolationValues.num as number
-      );
-      const pluralizedTranslation: TranslationValue = (translation as Translations)[
-        pluralizeKey
-      ];
-
-      return interpolate(
-        pluralizedTranslation as string,
-        interpolationValues,
-        invalidInterpolationValueFallback
-      );
-    }
-
-    return invalidTranslationValueFallback;
-  }
-
-  return interpolate(
-    translation as string,
-    interpolationValues,
-    invalidInterpolationValueFallback
-  );
+  return initOptions.fallback;
 }
 
-function localizeT(translations: Translations, options: InitOptions) {
-  const lang = options.lang;
-  const defaultLang = options.defaultLang;
+function localizeT(translations: Translations, initOptions: InitOptions) {
+  if (!(initOptions.lang in translations) && !("defaultLang" in initOptions)) {
+    debug(`${APP_LOG_ID}: No translations available.`);
+  }
 
-  if (typeof lang !== "string") {
-    if (typeof defaultLang !== "string") {
-      throw new Error(
-        `${APP_LOG_ID}: No language and fallback language available`
-      );
-    }
+  const mainTranslations =
+    initOptions.lang in translations ? translations[initOptions.lang] : null;
+  const defaultTranslations =
+    initOptions.defaultLang in translations
+      ? translations[initOptions.defaultLang]
+      : null;
 
-    if (defaultLang in translations) {
-      return (lookupKey: string, interpolationValues: InterpolationValues) =>
-        t(lookupKey, interpolationValues, translations[defaultLang], options);
-    }
-
-    throw new Error(
-      `${APP_LOG_ID}: Fallback language '${defaultLang}' is not available in translations.`
+  return (lookupKey: string, interpolationValues: InterpolationValues) =>
+    t(
+      lookupKey,
+      interpolationValues,
+      mainTranslations,
+      defaultTranslations,
+      initOptions
     );
-  }
+}
 
-  if (lang in translations) {
-    return (lookupKey: string, interpolationValues: InterpolationValues) =>
-      t(lookupKey, interpolationValues, translations[lang], options);
-  }
-
-  throw new Error(
-    `${APP_LOG_ID}: Language '${lang} is not available in translations.'`
-  );
+function processInitOptions(options: UserInitOptions): InitOptions {
+  return {
+    ...options,
+    defaultLang:
+      typeof options.defaultLang === "string"
+        ? (options.defaultLang as string)
+        : DEFAULT_LANG,
+    fallback:
+      typeof options.fallback === "string"
+        ? (options.fallback as string)
+        : FALLBACK_DEFAULT
+  };
 }
 
 export default function init(
   translations: TranslationInput,
   options: InitOptions
 ) {
+  const fallback =
+    typeof options.fallback === "string" ? options.fallback : FALLBACK_DEFAULT;
+
+  const preprocessedOptions = processInitOptions(options);
+
   if (Array.isArray(translations)) {
     if (translations.some(translation => !isObject(translation))) {
       debug(
@@ -189,10 +215,10 @@ export default function init(
 
     const flattenedTranslations = flattenTranslations(translations);
 
-    return localizeT(flattenedTranslations, options);
+    return localizeT(flattenedTranslations, preprocessedOptions);
   } else if (isObject(translations)) {
-    return localizeT(translations, options);
+    return localizeT(translations, preprocessedOptions);
   }
 
-  throw new Error("Translations are invalid");
+  return fallback;
 }
