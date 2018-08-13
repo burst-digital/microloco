@@ -22,10 +22,8 @@ Make sure you use the `prettier` and `tslint` styleguide in order to be able to 
 ## Todos
 
 - **Make `npm` 'ready'**
-- **Add React Provider/Consumer and HOC example**
-- Test error handling/option handling.
-- Use the default language translations when a key is not available in the current language's translations. 
-- Support a way of formatting intervals of numbers that map to certain translations.
-- Support modifiers on translations through options. *E.g.: { transform: 'lowercase', dotted: true }* 
-- Support HTML parsing if HTML is in the string
+- Update documentation
+- Support preprocessors (HTML parsing, Lowercase, Uppercase, et cetera)
+- Add React Provider/Consumer and HOC example
 - Add tests
+- Support a way of formatting intervals of numbers that map to certain translations.
