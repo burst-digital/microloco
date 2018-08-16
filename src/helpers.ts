@@ -11,7 +11,7 @@ export function isPluralized(translations: Translations) {
 }
 
 export function flattenTranslations(
-  translations: [Translations]
+  translations: Translations[]
 ): Translations {
   return translations.reduce((p, n) => {
     if (isObject(n)) {
