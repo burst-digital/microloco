@@ -49,8 +49,7 @@ function createInterpolationPostprocessor(
           if (
             isObject(interpolationValues) &&
             interpolationValues[preprocessedMatch] !== null &&
-            (
-              typeof interpolationValues[preprocessedMatch] === "string" ||
+            (typeof interpolationValues[preprocessedMatch] === "string" ||
               typeof interpolationValues[preprocessedMatch] === "number")
           ) {
             return String(interpolationValues[preprocessedMatch]);
