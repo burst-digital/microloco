@@ -1,11 +1,14 @@
 import * as debug from "debug";
 import {
   APP_LOG_ID,
+  DEFAULT_INIT_OPTIONS,
   DEFAULT_LANG,
+  DEFAULT_TRANSLATION_OPTIONS,
   FALLBACK_DEFAULT,
   INTERPOLATE_REGEX,
   NONE,
   PLURAL,
+  PLURALIZATION_INTERPOLATION_KEY,
   SINGULAR
 } from "./constants";
 import { flattenTranslations, isObject, isPluralized } from "./helpers";
@@ -35,8 +38,7 @@ function deepFindTranslation(
 
 function interpolate(
   translation: string,
-  interpolationValues: InterpolationValues,
-  fallback: string
+  interpolationValues: InterpolationValues
 ) {
   if (isObject(interpolationValues)) {
     return translation
@@ -61,7 +63,7 @@ function interpolate(
             `${APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
           );
 
-          return fallback;
+          return "";
         }
       )
       .replace(/[{}]/g, () => "");
@@ -70,10 +72,10 @@ function interpolate(
   return translation;
 }
 
-function determinePluralizedTranslation(num: number): PluralizeKey {
-  if (num > 1) {
+function determinePluralizedTranslationKey(value: number): PluralizeKey {
+  if (value > 1) {
     return PLURAL;
-  } else if (num === 1) {
+  } else if (value === 1) {
     return SINGULAR;
   }
   return NONE;
@@ -116,13 +118,13 @@ function getTranslationValue(
 
 function t(
   lookupKey: string,
-  interpolationValues: InterpolationValues,
   mainTranslations: Translations,
   defaultTranslations: Translations,
-  initOptions: InitOptions
+  processedInitOptions: ProcessedInitOptions,
+  processedTranslationOptions: ProcessedTranslationOptions
 ) {
   if (mainTranslations === null && defaultTranslations === null) {
-    return initOptions.fallback;
+    return processedInitOptions.fallback;
   }
 
   const translation = getTranslationValue(
@@ -131,14 +133,11 @@ function t(
     defaultTranslations
   );
 
-  if (
-    isObject(translation) &&
-    isPluralized(translation as Translations) &&
-    "num" in interpolationValues &&
-    !isNaN(interpolationValues.num as number)
-  ) {
-    const pluralizeKey = determinePluralizedTranslation(
-      interpolationValues.num as number
+  if (isObject(translation) && isPluralized(translation as Translations)) {
+    const pluralizeKey = determinePluralizedTranslationKey(
+      processedTranslationOptions.interpolationValues[
+        processedInitOptions.pluralizationInterpolationKey
+      ] as number
     );
 
     const pluralizedTranslation: TranslationValue = (translation as Translations)[
@@ -147,78 +146,65 @@ function t(
 
     return interpolate(
       pluralizedTranslation as string,
-      interpolationValues,
-      initOptions.fallback
+      processedTranslationOptions.interpolationValues
     );
   } else if (typeof translation === "string") {
     return interpolate(
       translation as string,
-      interpolationValues,
-      initOptions.fallback
+      processedTranslationOptions.interpolationValues
     );
   }
 
-  return initOptions.fallback;
+  return processedInitOptions.fallback;
 }
 
-function localizeT(translations: Translations, initOptions: InitOptions) {
-  if (!(initOptions.lang in translations) && !("defaultLang" in initOptions)) {
-    debug(`${APP_LOG_ID}: No translations available.`);
-  }
+function setupT(translations: Translations, initOptions: InitOptions) {
+  const processedInitOptions: ProcessedInitOptions = {
+    ...DEFAULT_INIT_OPTIONS,
+    ...initOptions
+  };
 
   const mainTranslations =
-    initOptions.lang in translations ? translations[initOptions.lang] : null;
-  const defaultTranslations =
-    initOptions.defaultLang in translations
-      ? translations[initOptions.defaultLang]
+    processedInitOptions.lang in translations
+      ? translations[processedInitOptions.lang]
       : null;
 
-  return (lookupKey: string, interpolationValues: InterpolationValues) =>
-    t(
+  const defaultTranslations =
+    processedInitOptions.defaultLang in translations
+      ? translations[processedInitOptions.defaultLang]
+      : null;
+
+  return (lookupKey: string, translationOptions?: TranslationOptions) => {
+    const processedTranslationOptions: ProcessedTranslationOptions = {
+      ...DEFAULT_TRANSLATION_OPTIONS,
+      ...translationOptions
+    };
+
+    return t(
       lookupKey,
-      interpolationValues,
       mainTranslations,
       defaultTranslations,
-      initOptions
+      processedInitOptions,
+      processedTranslationOptions
     );
-}
-
-function processInitOptions(options: UserInitOptions): InitOptions {
-  return {
-    ...options,
-    defaultLang:
-      typeof options.defaultLang === "string"
-        ? (options.defaultLang as string)
-        : DEFAULT_LANG,
-    fallback:
-      typeof options.fallback === "string"
-        ? (options.fallback as string)
-        : FALLBACK_DEFAULT
   };
 }
 
 export default function init(
   translations: TranslationInput,
-  options: InitOptions
+  initOptions: InitOptions
 ) {
-  const fallback =
-    typeof options.fallback === "string" ? options.fallback : FALLBACK_DEFAULT;
+  const processedInitOptions = { ...DEFAULT_INIT_OPTIONS, ...initOptions };
 
-  const preprocessedOptions = processInitOptions(options);
-
-  if (Array.isArray(translations)) {
-    if (translations.some(translation => !isObject(translation))) {
-      debug(
-        `${APP_LOG_ID}: Some translation objects in the array were not an object, these values will be skipped.`
-      );
-    }
-
+  if (Array.isArray(translations) && translations.every(isObject)) {
     const flattenedTranslations = flattenTranslations(translations);
 
-    return localizeT(flattenedTranslations, preprocessedOptions);
+    return setupT(flattenedTranslations, processedInitOptions);
   } else if (isObject(translations)) {
-    return localizeT(translations, preprocessedOptions);
+    return setupT(translations, processedInitOptions);
   }
 
-  return fallback;
+  throw new Error(
+    `${APP_LOG_ID}: Translations are invalid, use a valid format.`
+  );
 }

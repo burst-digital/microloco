@@ -1,7 +1,7 @@
-import microloco from '../lib/index.js'; 
-import enLocale from './translations/en.json';
-import nlLocale from './translations/nl.json';
-
+const microloco = require('../lib/index.js').default; 
+const enLocale = require('./translations/en.json');
+const nlLocale = require('./translations/nl.json');
+console.log(microloco);
 const tNl = microloco([enLocale, nlLocale], {
   lang: 'nl',
   defaultLang: 'en'
@@ -10,7 +10,7 @@ const tNl = microloco([enLocale, nlLocale], {
 const tEn = microloco([enLocale, nlLocale], {
   defaultLang: 'en',
   options: {
-    initialInvalidKeyFallback: 'INVALID KEY USED!!!' 
+    fallback: 'INVALID KEY USED!!!' 
   }
 });
 

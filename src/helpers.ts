@@ -1,4 +1,4 @@
-import { NONE, PLURAL, SINGULAR } from "./constants";
+import { DEFAULT_INIT_OPTIONS, NONE, PLURAL, SINGULAR } from "./constants";
 
 export function isObject(o: any): boolean {
   return o !== null && typeof o === "object";
@@ -19,7 +19,7 @@ export function flattenTranslations(
   }, {});
 }
 
-export function isPluralized(translations: Translations): boolean {
+export function isPluralized(translations: Translations) {
   return (
     NONE in translations && SINGULAR in translations && PLURAL in translations
   );
