@@ -9,9 +9,7 @@ const tNl = microloco([enLocale, nlLocale], {
 
 const tEn = microloco([enLocale, nlLocale], {
   defaultLang: 'en',
-  options: {
-    fallback: 'INVALID KEY USED!!!' 
-  }
+  fallback: 'INVALID KEY USED!!!' 
 });
 
 const small = 'small';

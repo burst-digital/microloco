@@ -49,8 +49,9 @@ function createInterpolationPostprocessor(
           if (
             isObject(interpolationValues) &&
             interpolationValues[preprocessedMatch] !== null &&
-            (typeof interpolationValues[preprocessedMatch] !== "string" ||
-              typeof interpolationValues[preprocessedMatch] !== "number")
+            (
+              typeof interpolationValues[preprocessedMatch] === "string" ||
+              typeof interpolationValues[preprocessedMatch] === "number")
           ) {
             return String(interpolationValues[preprocessedMatch]);
           }
@@ -63,8 +64,8 @@ function createInterpolationPostprocessor(
         }
       )
       .replace(/[{}]/g, () => "");
-    }
-  }
+  };
+}
 
 function determinePluralizedTranslationKey(value: number): PluralizeKey {
   if (value > 1) {
@@ -113,15 +114,18 @@ function getTranslationValue(
   return null;
 }
 
-function postprocessTranslation(translation: string, postprocessors: Postprocessor[]): string {
+function postprocessTranslation(
+  translation: string,
+  postprocessors: Postprocessor[]
+): string {
   return postprocessors.reduce((p: string, n: Postprocessor) => {
-    if (typeof n !== 'function') {
-      return p; 
+    if (typeof n !== "function") {
+      return p;
     }
 
     const postprocessedTranslation = n(p);
-    
-    if (typeof postprocessedTranslation !== 'string') {
+
+    if (typeof postprocessedTranslation !== "string") {
       return p;
     }
 
@@ -144,17 +148,18 @@ function t(
       ] as number
     );
 
-    translation = (translation as Translations)[
-      pluralizeKey
-    ];
-
+    translation = (translation as Translations)[pluralizeKey];
   }
 
-  if (typeof translation === 'string') {
+  if (typeof translation === "string") {
     return postprocessTranslation(translation, [
-      createInterpolationPostprocessor(defaultedTranslationOptions.interpolationValues),
-      ...Array.isArray(defaultedTranslationOptions.postprocessors) ? [...defaultedTranslationOptions.postprocessors] : [],
-    ])
+      createInterpolationPostprocessor(
+        defaultedTranslationOptions.interpolationValues
+      ),
+      ...(Array.isArray(defaultedTranslationOptions.postprocessors)
+        ? [...defaultedTranslationOptions.postprocessors]
+        : [])
+    ]);
   }
 
   return defaultedGlobalOptions.fallback;

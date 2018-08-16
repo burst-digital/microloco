@@ -24,5 +24,3 @@ export function flattenTranslations(
     return p;
   }, {});
 }
-
-
