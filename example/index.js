@@ -1,7 +1,7 @@
 const microloco = require('../lib/index.js').default; 
 const enLocale = require('./translations/en.json');
 const nlLocale = require('./translations/nl.json');
-console.log(microloco);
+
 const tNl = microloco([enLocale, nlLocale], {
   lang: 'nl',
   defaultLang: 'en'
@@ -27,9 +27,9 @@ console.log(tNl('products.strawberry.name'));
 console.log('');
 
 console.log('---Computed numbered calls---')
-console.log(tNl('products.strawberry.numbered', { num: 0 }));
-console.log(tNl('products.strawberry.numbered', { num: 1 }));
-console.log(tNl('products.strawberry.numbered', { num: 42 }));
+console.log(tNl('products.strawberry.numbered', { interpolationValues: { num: 0 }}));
+console.log(tNl('products.strawberry.numbered', { interpolationValues: { num: 1 }}));
+console.log(tNl('products.strawberry.numbered', { interpolationValues: { num: 42 }}));
 
 console.log('');
 

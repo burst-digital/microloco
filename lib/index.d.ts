@@ -1,1 +1,1 @@
-export default function init(translations: TranslationInput, options: InitOptions): string | ((lookupKey: string, translationOptions?: TranslationOptions | undefined) => string);
+export default function init(translations: TranslationInput, initOptions: InitOptions): (lookupKey: string, translationOptions?: TranslationOptions | undefined) => string;

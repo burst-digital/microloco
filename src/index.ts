@@ -2,10 +2,10 @@ import * as debug from "debug";
 import {
   APP_LOG_ID,
   DEFAULT_INIT_OPTIONS,
-  DEFAULT_LANG,
+  DEFAULT_TRANSLATION_KEY,
   DEFAULT_TRANSLATION_OPTIONS,
-  FALLBACK_DEFAULT,
   INTERPOLATE_REGEX,
+  MAIN_TRANSLATION_KEY,
   NONE,
   PLURAL,
   PLURALIZATION_INTERPOLATION_KEY,
@@ -40,36 +40,30 @@ function interpolate(
   translation: string,
   interpolationValues: InterpolationValues
 ) {
-  if (isObject(interpolationValues)) {
-    return translation
-      .replace(
-        INTERPOLATE_REGEX,
-        (match: string): string => {
-          // Workaround for matching this content of the regex
+  return translation
+    .replace(
+      INTERPOLATE_REGEX,
+      (match: string): string => {
+        const preprocessedMatch = match.replace(/[{}]/g, () => "");
 
-          //  @TODO: return to positive lookbehind regex after ECMAScript 2018
-          const preprocessedMatch = match.replace(/[{}]/g, () => "");
-
-          if (
-            interpolationValues[preprocessedMatch] !== null &&
-            interpolationValues[preprocessedMatch] !== undefined &&
-            (typeof interpolationValues[preprocessedMatch] !== "string" ||
-              typeof interpolationValues[preprocessedMatch] !== "number")
-          ) {
-            return String(interpolationValues[preprocessedMatch]);
-          }
-
-          debug(
-            `${APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
-          );
-
-          return "";
+        if (
+          isObject(interpolationValues) &&
+          interpolationValues[preprocessedMatch] !== null &&
+          interpolationValues[preprocessedMatch] !== undefined &&
+          (typeof interpolationValues[preprocessedMatch] !== "string" ||
+            typeof interpolationValues[preprocessedMatch] !== "number")
+        ) {
+          return String(interpolationValues[preprocessedMatch]);
         }
-      )
-      .replace(/[{}]/g, () => "");
-  }
 
-  return translation;
+        debug(
+          `${APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
+        );
+
+        return "";
+      }
+    )
+    .replace(/[{}]/g, () => "");
 }
 
 function determinePluralizedTranslationKey(value: number): PluralizeKey {
@@ -78,13 +72,13 @@ function determinePluralizedTranslationKey(value: number): PluralizeKey {
   } else if (value === 1) {
     return SINGULAR;
   }
+
   return NONE;
 }
 
 function getTranslationValue(
   lookupKey: string,
-  mainTranslations: Translations,
-  defaultTranslations: Translations
+  translations: Translations
 ): TranslationValue {
   if (typeof lookupKey !== "string") {
     debug(`${APP_LOG_ID}: Lookup key ${String(lookupKey)} is not a string.`);
@@ -92,7 +86,10 @@ function getTranslationValue(
     return null;
   }
 
-  const mainTranslation = deepFindTranslation(lookupKey, mainTranslations);
+  const mainTranslation = deepFindTranslation(
+    lookupKey,
+    translations[MAIN_TRANSLATION_KEY]
+  );
 
   if (mainTranslation !== null) {
     return mainTranslation;
@@ -100,7 +97,7 @@ function getTranslationValue(
 
   const defaultTranslation = deepFindTranslation(
     lookupKey,
-    defaultTranslations
+    translations[DEFAULT_TRANSLATION_KEY]
   );
 
   if (defaultTranslation !== null) {
@@ -118,25 +115,16 @@ function getTranslationValue(
 
 function t(
   lookupKey: string,
-  mainTranslations: Translations,
-  defaultTranslations: Translations,
-  processedInitOptions: ProcessedInitOptions,
+  activeTranslations: Translations,
+  processedGlobalOptions: ProcessedGlobalOptions,
   processedTranslationOptions: ProcessedTranslationOptions
 ) {
-  if (mainTranslations === null && defaultTranslations === null) {
-    return processedInitOptions.fallback;
-  }
-
-  const translation = getTranslationValue(
-    lookupKey,
-    mainTranslations,
-    defaultTranslations
-  );
+  const translation = getTranslationValue(lookupKey, activeTranslations);
 
   if (isObject(translation) && isPluralized(translation as Translations)) {
     const pluralizeKey = determinePluralizedTranslationKey(
       processedTranslationOptions.interpolationValues[
-        processedInitOptions.pluralizationInterpolationKey
+        PLURALIZATION_INTERPOLATION_KEY
       ] as number
     );
 
@@ -155,24 +143,31 @@ function t(
     );
   }
 
-  return processedInitOptions.fallback;
+  return processedGlobalOptions.fallback;
 }
 
-function setupT(translations: Translations, initOptions: InitOptions) {
-  const processedInitOptions: ProcessedInitOptions = {
+function getActiveTranslations(
+  translations: Translations,
+  lang: string,
+  defaultLang: string
+): Translations {
+  return {
+    [MAIN_TRANSLATION_KEY]: translations[lang] || null,
+    [DEFAULT_TRANSLATION_KEY]: translations[defaultLang] || null
+  };
+}
+
+function setupT(translations: Translations, globalOptions: GlobalOptions) {
+  const processedGlobalOptions: ProcessedGlobalOptions = {
     ...DEFAULT_INIT_OPTIONS,
-    ...initOptions
+    ...globalOptions
   };
 
-  const mainTranslations =
-    processedInitOptions.lang in translations
-      ? translations[processedInitOptions.lang]
-      : null;
-
-  const defaultTranslations =
-    processedInitOptions.defaultLang in translations
-      ? translations[processedInitOptions.defaultLang]
-      : null;
+  const activeTranslations = getActiveTranslations(
+    translations,
+    processedGlobalOptions.lang,
+    processedGlobalOptions.defaultLang
+  );
 
   return (lookupKey: string, translationOptions?: TranslationOptions) => {
     const processedTranslationOptions: ProcessedTranslationOptions = {
@@ -182,9 +177,8 @@ function setupT(translations: Translations, initOptions: InitOptions) {
 
     return t(
       lookupKey,
-      mainTranslations,
-      defaultTranslations,
-      processedInitOptions,
+      activeTranslations,
+      processedGlobalOptions,
       processedTranslationOptions
     );
   };
@@ -192,16 +186,14 @@ function setupT(translations: Translations, initOptions: InitOptions) {
 
 export default function init(
   translations: TranslationInput,
-  initOptions: InitOptions
+  globalOptions: GlobalOptions
 ) {
-  const processedInitOptions = { ...DEFAULT_INIT_OPTIONS, ...initOptions };
-
   if (Array.isArray(translations) && translations.every(isObject)) {
     const flattenedTranslations = flattenTranslations(translations);
 
-    return setupT(flattenedTranslations, processedInitOptions);
+    return setupT(flattenedTranslations, globalOptions);
   } else if (isObject(translations)) {
-    return setupT(translations, processedInitOptions);
+    return setupT(translations, globalOptions);
   }
 
   throw new Error(
