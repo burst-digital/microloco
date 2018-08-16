@@ -36,35 +36,35 @@ function deepFindTranslation(
     }, translations);
 }
 
-function interpolate(
-  translation: string,
+function createInterpolationPostprocessor(
   interpolationValues: InterpolationValues
-) {
-  return translation
-    .replace(
-      INTERPOLATE_REGEX,
-      (match: string): string => {
-        const preprocessedMatch = match.replace(/[{}]/g, () => "");
+): Postprocessor {
+  return (translation: string) => {
+    return translation
+      .replace(
+        INTERPOLATE_REGEX,
+        (match: string): string => {
+          const preprocessedMatch = match.replace(/[{}]/g, () => "");
 
-        if (
-          isObject(interpolationValues) &&
-          interpolationValues[preprocessedMatch] !== null &&
-          interpolationValues[preprocessedMatch] !== undefined &&
-          (typeof interpolationValues[preprocessedMatch] !== "string" ||
-            typeof interpolationValues[preprocessedMatch] !== "number")
-        ) {
-          return String(interpolationValues[preprocessedMatch]);
+          if (
+            isObject(interpolationValues) &&
+            interpolationValues[preprocessedMatch] !== null &&
+            (typeof interpolationValues[preprocessedMatch] !== "string" ||
+              typeof interpolationValues[preprocessedMatch] !== "number")
+          ) {
+            return String(interpolationValues[preprocessedMatch]);
+          }
+
+          debug(
+            `${APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
+          );
+
+          return "";
         }
-
-        debug(
-          `${APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
-        );
-
-        return "";
-      }
-    )
-    .replace(/[{}]/g, () => "");
-}
+      )
+      .replace(/[{}]/g, () => "");
+    }
+  }
 
 function determinePluralizedTranslationKey(value: number): PluralizeKey {
   if (value > 1) {
@@ -113,37 +113,51 @@ function getTranslationValue(
   return null;
 }
 
+function postprocessTranslation(translation: string, postprocessors: Postprocessor[]): string {
+  return postprocessors.reduce((p: string, n: Postprocessor) => {
+    if (typeof n !== 'function') {
+      return p; 
+    }
+
+    const postprocessedTranslation = n(p);
+    
+    if (typeof postprocessedTranslation !== 'string') {
+      return p;
+    }
+
+    return postprocessedTranslation;
+  }, translation);
+}
+
 function t(
   lookupKey: string,
   activeTranslations: Translations,
-  processedGlobalOptions: ProcessedGlobalOptions,
-  processedTranslationOptions: ProcessedTranslationOptions
+  defaultedGlobalOptions: DefaultedGlobalOptions,
+  defaultedTranslationOptions: DefaultedTranslationOptions
 ) {
-  const translation = getTranslationValue(lookupKey, activeTranslations);
+  let translation = getTranslationValue(lookupKey, activeTranslations);
 
   if (isObject(translation) && isPluralized(translation as Translations)) {
     const pluralizeKey = determinePluralizedTranslationKey(
-      processedTranslationOptions.interpolationValues[
+      defaultedTranslationOptions.interpolationValues[
         PLURALIZATION_INTERPOLATION_KEY
       ] as number
     );
 
-    const pluralizedTranslation: TranslationValue = (translation as Translations)[
+    translation = (translation as Translations)[
       pluralizeKey
     ];
 
-    return interpolate(
-      pluralizedTranslation as string,
-      processedTranslationOptions.interpolationValues
-    );
-  } else if (typeof translation === "string") {
-    return interpolate(
-      translation as string,
-      processedTranslationOptions.interpolationValues
-    );
   }
 
-  return processedGlobalOptions.fallback;
+  if (typeof translation === 'string') {
+    return postprocessTranslation(translation, [
+      createInterpolationPostprocessor(defaultedTranslationOptions.interpolationValues),
+      ...Array.isArray(defaultedTranslationOptions.postprocessors) ? [...defaultedTranslationOptions.postprocessors] : [],
+    ])
+  }
+
+  return defaultedGlobalOptions.fallback;
 }
 
 function getActiveTranslations(
@@ -158,19 +172,19 @@ function getActiveTranslations(
 }
 
 function setupT(translations: Translations, globalOptions: GlobalOptions) {
-  const processedGlobalOptions: ProcessedGlobalOptions = {
+  const defaultedGlobalOptions: DefaultedGlobalOptions = {
     ...DEFAULT_INIT_OPTIONS,
     ...globalOptions
   };
 
   const activeTranslations = getActiveTranslations(
     translations,
-    processedGlobalOptions.lang,
-    processedGlobalOptions.defaultLang
+    defaultedGlobalOptions.lang,
+    defaultedGlobalOptions.defaultLang
   );
 
   return (lookupKey: string, translationOptions?: TranslationOptions) => {
-    const processedTranslationOptions: ProcessedTranslationOptions = {
+    const defaultedTranslationOptions: DefaultedTranslationOptions = {
       ...DEFAULT_TRANSLATION_OPTIONS,
       ...translationOptions
     };
@@ -178,8 +192,8 @@ function setupT(translations: Translations, globalOptions: GlobalOptions) {
     return t(
       lookupKey,
       activeTranslations,
-      processedGlobalOptions,
-      processedTranslationOptions
+      defaultedGlobalOptions,
+      defaultedTranslationOptions
     );
   };
 }

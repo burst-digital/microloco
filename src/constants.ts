@@ -19,5 +19,6 @@ export const DEFAULT_INIT_OPTIONS = {
 };
 
 export const DEFAULT_TRANSLATION_OPTIONS = {
-  interpolationValues: {}
+  interpolationValues: {},
+  postprocessors: []
 };

@@ -1,7 +1,13 @@
-import { DEFAULT_INIT_OPTIONS, NONE, PLURAL, SINGULAR } from "./constants";
+import { NONE, PLURAL, SINGULAR } from "./constants";
 
 export function isObject(o: any): boolean {
   return o !== null && typeof o === "object";
+}
+
+export function isPluralized(translations: Translations) {
+  return (
+    NONE in translations && SINGULAR in translations && PLURAL in translations
+  );
 }
 
 export function flattenTranslations(
@@ -19,8 +25,4 @@ export function flattenTranslations(
   }, {});
 }
 
-export function isPluralized(translations: Translations) {
-  return (
-    NONE in translations && SINGULAR in translations && PLURAL in translations
-  );
-}
+

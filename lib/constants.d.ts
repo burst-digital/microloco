@@ -14,4 +14,5 @@ export declare const DEFAULT_INIT_OPTIONS: {
 };
 export declare const DEFAULT_TRANSLATION_OPTIONS: {
     interpolationValues: {};
+    postprocessors: never[];
 };
