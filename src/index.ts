@@ -1,5 +1,5 @@
 import * as debug from "debug";
-import * as constants from './constants'; 
+import * as constants from "./constants";
 import * as helpers from "./helpers";
 
 export default function init(
@@ -65,7 +65,10 @@ function t(
 ) {
   let translation = getTranslationValue(lookupKey, activeTranslations);
 
-  if (helpers.isObject(translation) && helpers.isPluralized(translation as Translations)) {
+  if (
+    helpers.isObject(translation) &&
+    helpers.isPluralized(translation as Translations)
+  ) {
     const pluralizeKey = helpers.determinePluralizedTranslationKey(
       defaultedTranslationOptions.interpolations[
         constants.PLURALIZATION_INTERPOLATION_KEY
@@ -94,7 +97,11 @@ function getTranslationValue(
   translations: Translations
 ): TranslationValue {
   if (typeof lookupKey !== "string") {
-    debug(`${constants.APP_LOG_ID}: Lookup key ${String(lookupKey)} is not a string.`);
+    debug(
+      `${constants.APP_LOG_ID}: Lookup key ${String(
+        lookupKey
+      )} is not a string.`
+    );
 
     return null;
   }
@@ -137,12 +144,17 @@ function deepFindTranslation(
   return lookupKey
     .split(".")
     .reduce((translation: TranslationValue, key: string): TranslationValue => {
-      if (helpers.isObject(translation) && key in (translation as Translations)) {
+      if (
+        helpers.isObject(translation) &&
+        key in (translation as Translations)
+      ) {
         return (translation as Translations)[key];
       }
 
       debug(
-        `${constants.APP_LOG_ID}: Translation lookup key ${lookupKey} has no translation value.`
+        `${
+          constants.APP_LOG_ID
+        }: Translation lookup key ${lookupKey} has no translation value.`
       );
 
       return null;
@@ -188,7 +200,9 @@ function createInterpolationPostprocessor(
           }
 
           debug(
-            `${constants.APP_LOG_ID}: Interpolation value ${preprocessedMatch} is invalid.`
+            `${
+              constants.APP_LOG_ID
+            }: Interpolation value ${preprocessedMatch} is invalid.`
           );
 
           return "";
