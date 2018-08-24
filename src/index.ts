@@ -11,6 +11,7 @@ import {
   PLURALIZATION_INTERPOLATION_KEY,
   SINGULAR
 } from "./constants";
+
 import { flattenTranslations, isObject, isPluralized } from "./helpers";
 
 function deepFindTranslation(
@@ -37,7 +38,7 @@ function deepFindTranslation(
 }
 
 function createInterpolationPostprocessor(
-  interpolationValues: InterpolationValues
+  interpolations: InterpolationValues
 ): Postprocessor {
   return (translation: string) => {
     return translation
@@ -47,12 +48,12 @@ function createInterpolationPostprocessor(
           const preprocessedMatch = match.replace(/[{}]/g, () => "");
 
           if (
-            isObject(interpolationValues) &&
-            interpolationValues[preprocessedMatch] !== null &&
-            (typeof interpolationValues[preprocessedMatch] === "string" ||
-              typeof interpolationValues[preprocessedMatch] === "number")
+            isObject(interpolations) &&
+            interpolations[preprocessedMatch] !== null &&
+            (typeof interpolations[preprocessedMatch] === "string" ||
+              typeof interpolations[preprocessedMatch] === "number")
           ) {
-            return String(interpolationValues[preprocessedMatch]);
+            return String(interpolations[preprocessedMatch]);
           }
 
           debug(
@@ -142,7 +143,7 @@ function t(
 
   if (isObject(translation) && isPluralized(translation as Translations)) {
     const pluralizeKey = determinePluralizedTranslationKey(
-      defaultedTranslationOptions.interpolationValues[
+      defaultedTranslationOptions.interpolations[
         PLURALIZATION_INTERPOLATION_KEY
       ] as number
     );
@@ -153,7 +154,7 @@ function t(
   if (typeof translation === "string") {
     return postprocessTranslation(translation, [
       createInterpolationPostprocessor(
-        defaultedTranslationOptions.interpolationValues
+        defaultedTranslationOptions.interpolations
       ),
       ...(Array.isArray(defaultedTranslationOptions.postprocessors)
         ? [...defaultedTranslationOptions.postprocessors]

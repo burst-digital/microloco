@@ -13,6 +13,6 @@ export declare const DEFAULT_INIT_OPTIONS: {
     fallback: string;
 };
 export declare const DEFAULT_TRANSLATION_OPTIONS: {
-    interpolationValues: {};
+    interpolations: {};
     postprocessors: never[];
 };
