@@ -8,6 +8,7 @@ export const MAIN_TRANSLATION_KEY = "MAIN";
 export const DEFAULT_TRANSLATION_KEY = "DEFAULT";
 export const PLURALIZATION_INTERPOLATION_KEY = "num";
 
+export const LOOKUP_KEY_REGEX = /^([\w\d]+)(\.[\w\d]+)*$/;
 export const INTERPOLATE_REGEX = /{([^}]+)}/g;
 
 export const DEFAULT_LANG = "dev";

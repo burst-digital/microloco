@@ -96,11 +96,9 @@ function getTranslationValue(
   lookupKey: string,
   translations: Translations
 ): TranslationValue {
-  if (typeof lookupKey !== "string") {
+  if (!constants.LOOKUP_KEY_REGEX.test(lookupKey)) {
     debug(
-      `${constants.APP_LOG_ID}: Lookup key ${String(
-        lookupKey
-      )} is not a string.`
+      `${constants.APP_LOG_ID}: Lookup key ${String(lookupKey)} is not valid.`
     );
 
     return null;
