@@ -5,6 +5,7 @@ export declare const PLURAL = "plural";
 export declare const MAIN_TRANSLATION_KEY = "MAIN";
 export declare const DEFAULT_TRANSLATION_KEY = "DEFAULT";
 export declare const PLURALIZATION_INTERPOLATION_KEY = "num";
+export declare const LOOKUP_KEY_REGEX: RegExp;
 export declare const INTERPOLATE_REGEX: RegExp;
 export declare const DEFAULT_LANG = "dev";
 export declare const FALLBACK_DEFAULT = "";
