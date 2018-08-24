@@ -22,8 +22,6 @@ Make sure you use the `prettier` and `tslint` styleguide in order to be able to 
 ## Todos
 
 - **Make `npm` 'ready'**
-- Update documentation
 - Add React Provider/Consumer and HOC example
 - Add tests
-- Support a way of changing the language after initializing.
 - Support a way of formatting intervals of numbers that map to certain translations.
