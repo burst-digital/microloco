@@ -15,7 +15,7 @@ The reason for this is simply because there are other libraries that handle thes
 
 ## When to use Microloco
 
-Use microloco when you need a barebones solution to translating your JavaScript or TypeScript applications with the possibility to extend functionality with other libraries through interpolation. 
+Use microloco when you need a barebones solution to translating your JavaScript or TypeScript applications with the possibility to extend functionality with string postprocessor functions or other libraries through interpolation. 
 
 # Documentation 
 
