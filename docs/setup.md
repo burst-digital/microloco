@@ -1,12 +1,66 @@
 # Setup
 
-In order to use the library, the library needs to be set up with translations, a language and a default language. This is done by calling microloco as a function. 
-Microloco then returns a so-called `t()` function which can be used to do translations. This function is automatically wrapped with the provided language.
+In order to use the library, the library needs to be set up with translations and several options. This is done by calling microloco as a function.
 
-```js
+**Example**
+
+`microloco(translations: Translations, options: GlobalOptions);`
+
+Microloco then returns a so-called `t` function which can be used to do translations. This function is automatically wrapped with the provided active translations based on the languages used in the options.
+
+##  Loading translations
+
+Microloco expects the first argument to be either an object which contains top level language keys with strings or objects with strings as values or an array of the former. 
+
+An example of valid translations would be either:
+
+*As an object*
+
+```json
+{
+    "en": {
+        "key": {
+            "value": "foo"
+        },
+        "bar": "baz"
+    },
+    "nl": "..."
+}
+```
+
+*As an array*
+
+```json
+[
+    {
+        "en": {
+            "key": {
+                "value": "foo"
+            },
+            "bar": "baz"
+        },
+    },
+    {
+        "nl": "..."
+    }
+]
+```
+
+## Available global options
+
+Microloco expects the second argument to be an options object with settings needed to actually translate.
+
+|Key|Description|Required|Default value|
+|---|---|---|---|
+|lang|A string that defines the main language to be used in looking up translations (should be equal to the top level key in a translation).|Yes|N/A|
+|defaultLang|A string that defines the language default to if a lookup for a translation in the main language could not be found.|No|`'dev'`|
+|fallback|A string that defines what to return if looking up a translation fails (not found at all or errors)|No|`''`|
+
+## Setup example
+
+```
 import microloco from 'microloco';
 
-// Translations *must* be objects with unique base key and ideally identical content, these can be JavaScript objects or (imported) JSON files.
 const enLocale = {
     en: {
         cookie: 'Cookie'
@@ -16,25 +70,18 @@ const enLocale = {
 
 const frLocale = {
     fr: {
-        name: 'Le cookie'
+        cookie: 'Le cookie'
         //...
     } 
 };
 
-// Translations can be passed to the microloco function as a large object of translation objects or as an array of objects.
 let translations = { ...enLocale, ...frLocale };
+// or
 translations = [enLocale, frLocale]
 
 const t = microloco(translations, {
-    // Language that is used in the returned function. Required.
     lang: 'fr',
-    // Language that is used as a fallback if the base language cannot be found. Required.
     defaultLang: 'en',
-    // String that is returned if a lookup key for a translation is invalid. Defaults to '?'.
-    invalidLookupKeyFallback: 'unknown', // Defaults to '?'
-    // String that is returned if a translation value cannot be found/used. Defaults to '?'.
-    invalidTranslationValueFallback: 'unknown',  // Defaults to '?'
-    // String that is used to interpolate a certain value if the value is not currently passed as in the interpolation values. Defaults to '?'.
-    invalidInterpolationValueFallback: 'unknown'  // Defaults to '?'
+    fallback: '?'
 });
 ```

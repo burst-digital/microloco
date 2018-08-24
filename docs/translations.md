@@ -6,7 +6,7 @@ Creating translations is easy and support interpolation and pluralization. All t
 
 Static translations are simply key-value pairs of strings as children of the unique base key.
 
-**NL**
+**EN**
 
 ```js
 {
@@ -123,7 +123,3 @@ Pluralized translations require an object of the following keys: `none`, `singul
     }
 }
 ```
-
-## HTML in translation values
-
-Translation values can contain HTML tags, although the html will **not** automatically parsed. For now, strings containing HTML have to be parsed manually. 
