@@ -6,7 +6,7 @@ export function isObject(o: any): boolean {
 
 export function isPluralized(translations: Translations) {
   return (
-    NONE in translations && SINGULAR in translations && PLURAL in translations
+    NONE in translations || SINGULAR in translations || PLURAL in translations
   );
 }
 
