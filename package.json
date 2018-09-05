@@ -24,7 +24,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "rimraf ./lib && tsc",
-    "lint": "tslint --project tsconfig.json",
+    "lint": "tslint --project tsconfig.json && prettier 'src/**/*.ts' -l",
     "prettier": "prettier --write 'src/**/*.ts'",
     "example": "DEBUG=microloco node example",
     "precommit": "npm run prettier && npm run lint"

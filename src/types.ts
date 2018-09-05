@@ -21,7 +21,9 @@ export interface TranslationOptions {
 }
 
 export type TranslationInput = [Translations] | Translations;
-export interface Translations { [key: string]: any }
+export interface Translations {
+  [key: string]: any;
+}
 export type TranslationValue = Translations | string | null;
 
 export type PluralizeKey = "plural" | "singular" | "none";
