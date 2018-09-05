@@ -1,6 +1,17 @@
 import * as debug from "debug";
 import * as constants from "./constants";
 import * as helpers from "./helpers";
+import {
+  DefaultedGlobalOptions,
+  DefaultedTranslationOptions,
+  GlobalOptions,
+  InterpolationValues,
+  Postprocessor,
+  TranslationInput,
+  TranslationOptions,
+  Translations,
+  TranslationValue
+} from "./types";
 
 export default function init(
   translations: TranslationInput,

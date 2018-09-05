@@ -1,4 +1,5 @@
 import { NONE, PLURAL, SINGULAR } from "./constants";
+import { PluralizeKey, Translations } from "./types";
 
 export function flattenTranslations(
   translations: Translations[]
