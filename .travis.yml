@@ -11,3 +11,6 @@ branches:
 script:
   - npm run build
   - npm run lint
+
+after_success:
+  - npx semantic-release

@@ -1,6 +1,6 @@
 {
   "name": "microloco",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "A micro-sized Javascript/Typescript internationalization library so small it's loco.",
   "author": "Jori Regter <joriregter@gmail.com> (https://github.com/jdreg95|https://gitlab.com/jdreg95)",
   "keywords": [
@@ -34,6 +34,7 @@
     "husky": "^1.0.0-rc.13",
     "prettier": "^1.14.0",
     "rimraf": "^2.6.2",
+    "semantic-release": "^15.9.12",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
     "typescript": "^3.0.1"
