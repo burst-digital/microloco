@@ -1,7 +1,6 @@
-# The lib folder must be ignored in Git.
-# The .npmignore file should be exactly the same as this file, but without the
-# lib folder ignored.
-lib
+# The lib folder must not be ignored in npm.
+# The .gitignore file should be exactly the same as this file, but with the lib
+# folder ignored.
 
 # Created by https://www.gitignore.io/api/git,node,linux,macos,windows,jetbrains+all,visualstudiocode
 
