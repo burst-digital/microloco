@@ -17,7 +17,7 @@ export interface DefaultedTranslationOptions {
 
 export type TFunction = (
   lookupKey: string,
-  translationOptions: TranslationOptions
+  translationOptions?: TranslationOptions
 ) => string;
 
 export interface TranslationOptions {
