@@ -15,6 +15,11 @@ export interface DefaultedTranslationOptions {
   postprocessors: Postprocessor[];
 }
 
+export type TFunction = (
+  lookupKey: string,
+  translationOptions: TranslationOptions
+) => string;
+
 export interface TranslationOptions {
   interpolations?: InterpolationValues;
   postprocessors?: Postprocessor[];

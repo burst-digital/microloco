@@ -7,11 +7,25 @@ import {
   GlobalOptions,
   InterpolationValues,
   Postprocessor,
+  TFunction,
   TranslationInput,
   TranslationOptions,
   Translations,
   TranslationValue
 } from "./types";
+
+export {
+  DefaultedGlobalOptions,
+  DefaultedTranslationOptions,
+  GlobalOptions,
+  InterpolationValues,
+  Postprocessor,
+  TFunction,
+  TranslationInput,
+  TranslationOptions,
+  Translations,
+  TranslationValue
+};
 
 export default function init(
   translations: TranslationInput,
@@ -30,7 +44,10 @@ export default function init(
   );
 }
 
-function setupT(translations: Translations, globalOptions: GlobalOptions) {
+function setupT(
+  translations: Translations,
+  globalOptions: GlobalOptions
+): TFunction {
   const defaultedGlobalOptions: DefaultedGlobalOptions = {
     ...constants.DEFAULT_INIT_OPTIONS,
     ...globalOptions
