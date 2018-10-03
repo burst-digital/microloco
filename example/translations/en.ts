@@ -1,4 +1,4 @@
-{
+export const Locale = {
     "en": {
         "products": {
             "strawberry": {
@@ -24,3 +24,5 @@
         }
     }
 }
+
+export default Locale;

@@ -1,11 +1,14 @@
-import * as debug from "debug";
 import * as constants from "./constants";
+import * as debug from "debug";
 import * as helpers from "./helpers";
 import {
   DefaultedGlobalOptions,
   DefaultedTranslationOptions,
   GlobalOptions,
   InterpolationValues,
+  LookupFunction,
+  LookupKey,
+  LookupMethod,
   Postprocessor,
   TFunction,
   TranslationInput,
@@ -59,14 +62,17 @@ function setupT(
     defaultedGlobalOptions.defaultLang
   );
 
-  return (lookupKey: string, translationOptions?: TranslationOptions) => {
+  return (
+    lookupMethod: LookupMethod,
+    translationOptions?: TranslationOptions
+  ) => {
     const defaultedTranslationOptions: DefaultedTranslationOptions = {
       ...constants.DEFAULT_TRANSLATION_OPTIONS,
       ...translationOptions
     };
 
     return t(
-      lookupKey,
+      lookupMethod,
       activeTranslations,
       defaultedGlobalOptions,
       defaultedTranslationOptions
@@ -86,12 +92,12 @@ function getActiveTranslations(
 }
 
 function t(
-  lookupKey: string,
+  lookupMethod: LookupMethod,
   activeTranslations: Translations,
   defaultedGlobalOptions: DefaultedGlobalOptions,
   defaultedTranslationOptions: DefaultedTranslationOptions
 ) {
-  let translation = getTranslationValue(lookupKey, activeTranslations);
+  let translation = handleLookupMethod(lookupMethod, activeTranslations);
 
   if (
     helpers.isObject(translation) &&
@@ -120,8 +126,53 @@ function t(
   return defaultedGlobalOptions.fallback;
 }
 
-function getTranslationValue(
-  lookupKey: string,
+function handleLookupMethod(
+  lookupMethod: LookupMethod,
+  activeTranslations: Translations
+) {
+  if (typeof lookupMethod === "string") {
+    return getTranslationValueByLookupKey(lookupMethod, activeTranslations);
+  } else if (typeof lookupMethod === "function") {
+    return getTranslationValueByLookupFunction(
+      lookupMethod,
+      activeTranslations
+    );
+  }
+
+  return null;
+}
+
+function getTranslationValueByLookupFunction<P>(
+  lookupFunction: LookupFunction,
+  translations: Translations
+) {
+  const mainTranslation = lookupFunction(
+    translations[constants.MAIN_TRANSLATION_KEY]
+  );
+
+  if (mainTranslation !== null) {
+    return mainTranslation;
+  }
+
+  const defaultTranslation = lookupFunction(
+    translations[constants.DEFAULT_TRANSLATION_KEY]
+  );
+
+  if (defaultTranslation !== null) {
+    return defaultTranslation;
+  }
+
+  debug(
+    `${
+      constants.APP_LOG_ID
+    }: Translation in lookup function could not be found in either main or default translations.`
+  );
+
+  return null;
+}
+
+function getTranslationValueByLookupKey(
+  lookupKey: LookupKey,
   translations: Translations
 ): TranslationValue {
   if (!constants.LOOKUP_KEY_REGEX.test(lookupKey)) {

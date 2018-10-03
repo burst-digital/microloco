@@ -15,8 +15,18 @@ export interface DefaultedTranslationOptions {
   postprocessors: Postprocessor[];
 }
 
+export interface Translations {
+  [key: string]: any;
+}
+
+export type LookupKey = string;
+
+export type LookupFunction = (translations: Translations) => TranslationValue;
+
+export type LookupMethod = LookupKey | LookupFunction;
+
 export type TFunction = (
-  lookupKey: string,
+  lookupMethod: LookupMethod,
   translationOptions?: TranslationOptions
 ) => string;
 
@@ -26,9 +36,7 @@ export interface TranslationOptions {
 }
 
 export type TranslationInput = [Translations] | Translations;
-export interface Translations {
-  [key: string]: any;
-}
+
 export type TranslationValue = Translations | string | null;
 
 export type PluralizeKey = "plural" | "singular" | "none";

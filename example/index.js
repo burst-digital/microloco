@@ -1,52 +1,17 @@
-const microloco = require('../lib/index.js').default; 
-const enLocale = require('./translations/en.json');
-const nlLocale = require('./translations/nl.json');
-
-const tNl = microloco([enLocale, nlLocale], {
-  lang: 'nl',
-  defaultLang: 'en'
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var index_js_1 = __importDefault(require("../lib/index.js"));
+var en_1 = __importDefault(require("./translations/en"));
+var tEn = index_js_1.default(en_1.default, {
+    lang: 'en',
+    defaultLang: 'dev'
 });
-
-const small = 'small';
-const medium = 'medium';
-const large = 'large';
-
-console.log('---Regular calls---')
-console.log(tNl('products.strawberry.name'));
-
-console.log('');
-
-console.log('---Preprocessed calls---')
-console.log(tNl('products.strawberry.name', {
-  postprocessors: [
-    s => s.toUpperCase(),
-    s => `${s}.`
-  ]
-}));
-
-console.log('');
-
-console.log('---Computed numbered calls---')
-console.log(tNl('products.strawberry.numbered', { interpolations: { num: 0 }}));
-console.log(tNl('products.strawberry.numbered', { interpolations: { num: 1 }}));
-console.log(tNl('products.strawberry.numbered', { interpolations: { num: 42 }}));
-
-console.log('');
-
-console.log('---Individual numbered calls---')
-console.log(tNl('products.strawberry.numbered.none'));
-console.log(tNl('products.strawberry.numbered.singular'));
-console.log(tNl('products.strawberry.numbered.plural', { interpolations: { num: 42 }}));
-
-console.log('');
-
-console.log('---Numbered calls with extra values---');
-console.log(tNl('products.strawberry.extraNumbered', { interpolations: { num: 0, extra: 'super' }}));
-console.log(tNl('products.strawberry.extraNumbered', { interpolations: { num: 1, extra: 'mega'}}));
-console.log(tNl('products.strawberry.extraNumbered', { interpolations: { num: 42, extra: 'super mega' }}));
-console.log('');
-
-console.log('---Enum calls---')
-console.log(tNl(`products.strawberry.size.${small}`));
-console.log(tNl(`products.strawberry.size.${medium}`));
-console.log(tNl(`products.strawberry.size.${large}`));
+var small = 'small';
+var medium = 'medium';
+var large = 'large';
+console.log('---Regular calls---');
+console.log(tEn('products.strawberry.name'));
+console.log(tEn(function (_) { return _.hello; }));
