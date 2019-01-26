@@ -21,12 +21,12 @@ export interface Translations {
 
 export type LookupKey = string;
 
-export type LookupFunction = (translations: Translations) => TranslationValue;
+export type LookupFunction<P extends Translations> = (
+  translations: P
+) => TranslationValue;
 
-export type LookupMethod = LookupKey | LookupFunction;
-
-export type TFunction = (
-  lookupMethod: LookupMethod,
+export type TFunction<P extends Translations> = (
+  lookupMethod: LookupKey | LookupFunction<P>,
   translationOptions?: TranslationOptions
 ) => string;
 

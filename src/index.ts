@@ -1,5 +1,5 @@
-import * as constants from "./constants";
 import * as debug from "debug";
+import * as constants from "./constants";
 import * as helpers from "./helpers";
 import {
   DefaultedGlobalOptions,
@@ -8,7 +8,6 @@ import {
   InterpolationValues,
   LookupFunction,
   LookupKey,
-  LookupMethod,
   Postprocessor,
   TFunction,
   TranslationInput,
@@ -30,16 +29,16 @@ export {
   TranslationValue
 };
 
-export default function init(
+export default function init<P extends Translations = Translations>(
   translations: TranslationInput,
   globalOptions: GlobalOptions
-) {
+): TFunction<P> {
   if (Array.isArray(translations) && translations.every(helpers.isObject)) {
     const flattenedTranslations = helpers.flattenTranslations(translations);
 
-    return setupT(flattenedTranslations, globalOptions);
+    return setupT<P>(flattenedTranslations, globalOptions);
   } else if (helpers.isObject(translations)) {
-    return setupT(translations, globalOptions);
+    return setupT<P>(translations, globalOptions);
   }
 
   throw new Error(
@@ -47,10 +46,10 @@ export default function init(
   );
 }
 
-function setupT(
+function setupT<P extends Translations>(
   translations: Translations,
   globalOptions: GlobalOptions
-): TFunction {
+): TFunction<P> {
   const defaultedGlobalOptions: DefaultedGlobalOptions = {
     ...constants.DEFAULT_INIT_OPTIONS,
     ...globalOptions
@@ -62,10 +61,10 @@ function setupT(
     defaultedGlobalOptions.defaultLang
   );
 
-  return (
-    lookupMethod: LookupMethod,
+  const ConcreteTFunction = function(
+    lookupMethod: LookupKey | LookupFunction<P>,
     translationOptions?: TranslationOptions
-  ) => {
+  ) {
     const defaultedTranslationOptions: DefaultedTranslationOptions = {
       ...constants.DEFAULT_TRANSLATION_OPTIONS,
       ...translationOptions
@@ -78,6 +77,8 @@ function setupT(
       defaultedTranslationOptions
     );
   };
+
+  return ConcreteTFunction;
 }
 
 function getActiveTranslations(
@@ -91,8 +92,8 @@ function getActiveTranslations(
   };
 }
 
-function t(
-  lookupMethod: LookupMethod,
+function t<P extends Translations>(
+  lookupMethod: LookupKey | LookupFunction<P>,
   activeTranslations: Translations,
   defaultedGlobalOptions: DefaultedGlobalOptions,
   defaultedTranslationOptions: DefaultedTranslationOptions
@@ -126,8 +127,8 @@ function t(
   return defaultedGlobalOptions.fallback;
 }
 
-function handleLookupMethod(
-  lookupMethod: LookupMethod,
+function handleLookupMethod<P extends Translations>(
+  lookupMethod: LookupKey | LookupFunction<P>,
   activeTranslations: Translations
 ) {
   if (typeof lookupMethod === "string") {
@@ -142,8 +143,8 @@ function handleLookupMethod(
   return null;
 }
 
-function getTranslationValueByLookupFunction<P>(
-  lookupFunction: LookupFunction,
+function getTranslationValueByLookupFunction<P extends Translations>(
+  lookupFunction: LookupFunction<P>,
   translations: Translations
 ) {
   const mainTranslation = lookupFunction(

@@ -1,16 +1,11 @@
 
 import enLocale from './translations/en';
-import microloco from 'microloco'; 
+import microloco from '../lib'; 
 
-const t = microloco(enLocale, {
+const t = microloco<typeof import('./translations/en').default>(enLocale, {
   lang: 'en',
   defaultLang: 'dev'
 });
-
-const small = 'small';
-const medium = 'medium';
-const large = 'large';
-
 
 console.log('---Regular calls---')
 console.log(t('products.strawberry.name'));

@@ -37,8 +37,7 @@
     "semantic-release": "^15.9.12",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
-    "typescript": "^3.0.1",
-    "microloco": "microloco-0.0.0-development.tgz"
+    "typescript": "^3.0.1"
   },
   "dependencies": {
     "debug": "^3.1.0"

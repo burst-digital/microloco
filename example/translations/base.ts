@@ -1,5 +1,5 @@
 export const Locale = {
-    "en": {
+    "base": {
         "products": {
             "strawberry": {
                 "name": "Strawberry",
@@ -25,4 +25,4 @@ export const Locale = {
     }
 }
 
-export default Locale.en;
+export default Locale;
